@@ -2,35 +2,40 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#262421">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Chess vs Claude</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
+:root{--sq:70px;}
 body{
   background:#262421;font-family:'Segoe UI',system-ui,sans-serif;
   display:flex;justify-content:center;align-items:center;
   min-height:100vh;padding:20px;color:#bababa;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
 }
 #wrap{display:flex;gap:10px;align-items:flex-start;}
-.pnl{background:#302e2c;padding:8px 12px;display:flex;align-items:center;gap:10px;border-radius:4px;width:560px;}
+.pnl{background:#302e2c;padding:8px 12px;display:flex;align-items:center;gap:10px;border-radius:4px;width:calc(var(--sq)*8);}
 .ava{width:36px;height:36px;border-radius:4px;background:#3d3a38;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
 .pname{font-size:14px;font-weight:600;color:#e8e8e8;}
 .psub{font-size:11px;color:#777;margin-top:1px;}
 .mat{margin-left:auto;font-size:18px;letter-spacing:1px;display:flex;align-items:center;gap:1px;}
 .mat-adv{font-size:11px;color:#aaa;margin-left:3px;font-weight:700;}
 #bwrap{display:flex;flex-direction:column;gap:4px;}
-#board{display:grid;grid-template-columns:repeat(8,70px);grid-template-rows:repeat(8,70px);box-shadow:0 4px 24px rgba(0,0,0,.6);}
-.sq{width:70px;height:70px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;user-select:none;}
+#board{display:grid;grid-template-columns:repeat(8,var(--sq));grid-template-rows:repeat(8,var(--sq));box-shadow:0 4px 24px rgba(0,0,0,.6);}
+.sq{width:var(--sq);height:var(--sq);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;user-select:none;-webkit-user-select:none;}
 .sq.lt{background:#eeeed2;}.sq.dk{background:#769656;}
 .sq.slt{background:#f6f669;}.sq.sdk{background:#baca44;}
 .sq.mlt{background:#cdd26f;}.sq.mdk{background:#aaa23a;}
 .sq.ck{background:#cc3333!important;}
-.pc{font-size:52px;line-height:1;position:relative;z-index:2;pointer-events:none;}
+.pc{font-size:calc(var(--sq)*0.74);line-height:1;position:relative;z-index:2;pointer-events:none;}
 .pc.pw{color:#fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.9)) drop-shadow(0 0 1px rgba(0,0,0,.7));}
 .pc.pb{color:#1c1c1c;filter:drop-shadow(0 1px 1px rgba(255,255,255,.2));}
 .sq.vm::after{content:'';position:absolute;width:33%;height:33%;background:rgba(0,0,0,.2);border-radius:50%;z-index:3;pointer-events:none;}
 .sq.vc::after{content:'';position:absolute;inset:0;background:radial-gradient(transparent 54%,rgba(0,0,0,.2) 55%);z-index:3;pointer-events:none;}
-.co{position:absolute;font-size:11px;font-weight:700;line-height:1;pointer-events:none;z-index:1;}
+.co{position:absolute;font-size:calc(var(--sq)*0.16);font-weight:700;line-height:1;pointer-events:none;z-index:1;}
 .co-r{top:2px;left:3px;}.co-f{bottom:2px;right:3px;}
 .sq.lt .co{color:#769656;}.sq.dk .co{color:#eeeed2;}
 #side{width:232px;background:#302e2c;border-radius:4px;display:flex;flex-direction:column;overflow:hidden;}
@@ -45,22 +50,45 @@ body{
 .mn{color:#666;width:30px;text-align:right;padding:3px 6px 3px 0;font-size:12px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;}
 .mh{padding:3px 6px;border-radius:2px;cursor:default;transition:background .1s;flex:1;}
 .mh.mw{color:#e8e8e8;}.mh.mb{color:#bbb;}
-.mh:hover{background:rgba(255,255,255,.1);}
 #btnrow{padding:10px;display:flex;flex-direction:column;gap:6px;border-top:1px solid #1a1917;}
 .btn{padding:9px;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.3px;transition:background .15s;width:100%;}
-.btn-g{background:#81b64c;color:#fff;}.btn-g:hover{background:#6a9d3a;}
-.btn-d{background:#454240;color:#e8e8e8;}.btn-d:hover{background:#555;}
+.btn-g{background:#81b64c;color:#fff;}
+.btn-d{background:#454240;color:#e8e8e8;}
 #ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99;}
 #pm{display:none;position:fixed;z-index:100;flex-direction:row;}
-.psq{width:70px;height:70px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:52px;transition:background .1s;}
+.psq{width:var(--sq);height:var(--sq);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:calc(var(--sq)*0.74);transition:background .1s;}
 .psq:nth-child(odd){background:#eeeed2;}.psq:nth-child(even){background:#769656;}
-.psq:hover{background:#f6f669!important;}.psq .pc{pointer-events:none;}
+.psq .pc{pointer-events:none;}
 #menu{display:none;position:fixed;z-index:100;top:50%;left:50%;transform:translate(-50%,-50%);background:#302e2c;padding:28px 32px;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.6);text-align:center;}
 #menu h2{color:#e8e8e8;font-size:20px;margin-bottom:18px;font-weight:600;}
 .mbtns{display:flex;gap:12px;}
 .mbtns button{padding:16px 18px;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;background:#454240;color:#e8e8e8;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:86px;transition:background .15s,color .15s;}
-.mbtns button:hover{background:#81b64c;color:#fff;}
 .mbtns button .ico{font-size:34px;line-height:1;}
+
+/* Hover styles only where a real pointer exists (avoids sticky hover on touch) */
+@media (hover:hover){
+  .mh:hover{background:rgba(255,255,255,.1);}
+  .btn-g:hover{background:#6a9d3a;}
+  .btn-d:hover{background:#555;}
+  .psq:hover{background:#f6f669!important;}
+  .mbtns button:hover{background:#81b64c;color:#fff;}
+}
+
+/* ─── Mobile / small-screen adaptation ─── */
+@media (max-width:860px){
+  :root{--sq:min(70px, calc((100vw - 14px)/8), calc((100vh - 170px)/8));}
+  body{padding:6px;align-items:flex-start;}
+  #wrap{flex-direction:column;align-items:center;gap:6px;width:100%;}
+  #side{width:calc(var(--sq)*8);}
+  #mwrap{max-height:18vh;min-height:48px;}
+  #btnrow{flex-direction:row;}
+}
+@media (max-width:380px){
+  #menu{padding:20px 18px;}
+  .mbtns{gap:8px;}
+  .mbtns button{min-width:0;flex:1;padding:12px 8px;font-size:13px;}
+  .mbtns button .ico{font-size:28px;}
+}
 </style>
 </head>
 <body>
