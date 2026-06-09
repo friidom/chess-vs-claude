@@ -59,7 +59,6 @@ function newGame() {
   document.getElementById('moves-list').innerHTML = '';
   document.getElementById('move-count').textContent = '0';
   document.getElementById('gameover-overlay').classList.add('hidden');
-  document.getElementById('btn-undo').disabled = true;
 
   setStatus('Your turn', '♟', '');
   render();
@@ -297,7 +296,6 @@ function execMove(mv, promo) {
   lastMove = mv;
   history.push({ mv, notation, color: movedBy });
   addMoveToHistory(notation, movedBy);
-  document.getElementById('btn-undo').disabled = false;
   render();
 
   if (nextMvs.length === 0) {
@@ -328,26 +326,23 @@ function doAIMove() {
   if (mv) execMove(mv, mv.sp === 'promo' ? 'q' : null);
 }
 
-// ─── Undo Move ────────────────────────────────────────────────────────────
-function undoMove() {
-  if (isThinking || gameOver || stateStack.length <= 1) return;
-
-  // Pop until we're back at white's turn (undo player + AI response)
-  const pops = (stateStack.length >= 3 && turn === 'white') ? 2 : 1;
-  for (let i = 0; i < pops; i++) {
-    if (stateStack.length > 1) stateStack.pop();
-  }
-
-  restoreSnapshot(stateStack[stateStack.length - 1]);
-  gameOver   = false;
-  sel        = null;
-  validMoves = [];
-
-  rebuildMoveList();
-  document.getElementById('btn-undo').disabled = stateStack.length <= 1;
-  document.getElementById('gameover-overlay').classList.add('hidden');
-  setStatus('Your turn', '♟', '');
-  render();
+// ─── "Undo" — a trap button that taunts instead of undoing ─────────────────
+const TAUNTS = [
+  'AHAHAH loser! 😂', 'No takebacks! 😈', 'Undo? In MY house?', 'Nice try, human.',
+  'Skill issue. 💀', 'There is no undo, only regret.', 'Cope. Seethe. Move a piece.',
+  'Bold of you to think that works.', 'Claude says: no. 🤖', "Should've thought first!",
+  'Imagine needing an undo button.', 'Tactical retreat: DENIED.', 'You meant to do that. 😏',
+  'L + ratio + no undo', 'That move is FOREVER now.'
+];
+let toastTimer = null;
+function taunt() {
+  const el = document.getElementById('toast');
+  el.textContent = TAUNTS[Math.floor(Math.random() * TAUNTS.length)];
+  el.classList.remove('show');
+  void el.offsetWidth; // restart animation on rapid clicks
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
 }
 
 // ─── Flip Board ───────────────────────────────────────────────────────────
@@ -400,7 +395,7 @@ function showPromoDialog(cb) {
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-new').addEventListener('click', newGame);
   document.getElementById('btn-flip').addEventListener('click', flipBoard);
-  document.getElementById('btn-undo').addEventListener('click', undoMove);
+  document.getElementById('btn-undo').addEventListener('click', taunt);
   document.getElementById('btn-resign').addEventListener('click', resign);
   newGame();
 });
