@@ -64,6 +64,18 @@ body{
 .mbtns{display:flex;gap:12px;}
 .mbtns button{padding:16px 18px;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;background:#454240;color:#e8e8e8;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:86px;transition:background .15s,color .15s;}
 .mbtns button .ico{font-size:34px;line-height:1;}
+#toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.4);z-index:200;
+  background:#1a1917;color:#ffd166;border:2px solid #81b64c;border-radius:10px;
+  padding:16px 24px;font-size:22px;font-weight:800;letter-spacing:.3px;text-align:center;
+  max-width:80vw;box-shadow:0 8px 40px rgba(0,0,0,.6);pointer-events:none;opacity:0;}
+#toast.show{animation:taunt 1.8s ease forwards;}
+@keyframes taunt{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(-9deg);}
+  14%{opacity:1;transform:translate(-50%,-50%) scale(1.12) rotate(3deg);}
+  26%{transform:translate(-50%,-50%) scale(1) rotate(-2deg);}
+  75%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0);}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(.92);}
+}
 
 /* Hover styles only where a real pointer exists (avoids sticky hover on touch) */
 @media (hover:hover){
@@ -111,12 +123,14 @@ body{
     <div id="mwrap"><div id="ml"></div></div>
     <div id="btnrow">
       <button class="btn btn-g" onclick="newGame()">New Game</button>
+      <button class="btn btn-d" onclick="taunt()">Undo</button>
       <button class="btn btn-d" onclick="resign()">Resign</button>
     </div>
   </div>
 </div>
 <div id="ov"></div>
 <div id="pm"></div>
+<div id="toast"></div>
 <div id="menu">
   <h2>Choose your side</h2>
   <div class="mbtns">
@@ -667,6 +681,20 @@ function showPromo(cb){
 function resign(){
   if(gameOver||!history.length)return;
   setStatus('You resigned — Claude wins','go');gameOver=true;
+}
+// The "Undo" button is a trap — it never undoes anything, it just taunts you.
+const TAUNTS=['AHAHAH loser! 😂','No takebacks! 😈','Undo? In MY house?','Nice try, human.',
+  'Skill issue. 💀','There is no undo, only regret.','Cope. Seethe. Move a piece.',
+  'Bold of you to think that works.','Claude says: no. 🤖','Should\'ve thought first!',
+  'Imagine needing an undo button.','Tactical retreat: DENIED.','You meant to do that. 😏',
+  'L + ratio + no undo','That move is FOREVER now.'];
+let toastT=null;
+function taunt(){
+  const el=document.getElementById('toast');
+  el.textContent=TAUNTS[Math.floor(Math.random()*TAUNTS.length)];
+  el.classList.remove('show');void el.offsetWidth; // restart animation on rapid clicks
+  el.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),1800);
 }
 
 // ─── Game lifecycle ───────────────────────────────────────────────────────
