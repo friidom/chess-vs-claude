@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A browser chess game where a human plays against a "Claude"-branded chess AI. Pure static HTML/CSS/JS — **no build step, no dependencies, no package manager, no tests, no framework.** Everything runs client-side in the browser; the AI is a full search engine written in plain JavaScript.
 
+## Working practice: commit & push regularly
+
+Treat git as part of doing the work, not an afterthought. **After each logical unit of work, stage the changes, commit with a clean, descriptive message, and `git push` to `origin main`.** Do not leave finished work uncommitted, and do not batch several unrelated changes into one commit. The goal is a continuous, revertable history so we never lose the state of what's been done — and because `main` auto-deploys (see Deployment), every push also publishes the change. `.claude/settings.local.json` and `.DS_Store` are gitignored.
+
 ## Two independent implementations (important)
 
 There are **two separate, diverging codebases** for the same game. A change to one does **not** propagate to the other — keep this in mind before assuming a fix applies everywhere.
@@ -35,7 +39,6 @@ When the user says "desktop version" they usually mean `chess/`; "mobile/main" m
 - Repo: `friidom/chess-vs-claude` (public). Deployed via **GitHub Pages** from `main` branch root.
 - **Pushing to `main` auto-redeploys** (build takes ~1 min). Live URLs: root `index.html` at https://friidom.github.io/chess-vs-claude/ , modular at `/chess/`.
 - Check build status: `gh api repos/friidom/chess-vs-claude/pages/builds/latest --jq '.status'` (`building` → `built`).
-- The user wants **every change committed and pushed** with a clean message so there's always a revertable version. `.claude/settings.local.json` and `.DS_Store` are gitignored.
 
 ## Architecture / shared concepts
 
